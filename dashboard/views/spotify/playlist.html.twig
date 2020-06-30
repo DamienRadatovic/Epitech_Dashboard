@@ -1,0 +1,49 @@
+{% extends 'layout.html.twig' %}
+
+{% block body %}
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+    <div>
+        <label for="playlist">Nom de la playlist</label>
+        <input id="playlist" type="text">
+    </div>
+
+    <div id="lecteur">
+        <iframe src="https://open.spotify.com/embed/playlist/" width="300" height="380" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
+    </div>
+    <script>
+        $.ajax({
+            url: "/spotify/api/getUserPlaylist",
+            dataType: "json",
+            type: "GET",
+            success: function(data){
+                console.log(data);
+                if(data.error == 401) {
+                    window.location.href = "https://accounts.spotify.com/fr/authorize?client_id=2847f09c105d4a07aec94c448957fe60&response_type=code&redirect_uri=http://127.0.0.1:3000/spotify/sessions/callback&&scope=user-read-private%20user-read-email%20playlist-read-private%20user-top-read";
+                }
+                var dataArr = [];
+                $( function() {
+                    data.forEach(function (element) {
+                        dataArr.push({label: element[1], value: element[1], id: element[0]});
+                    });
+                    $( "#playlist" ).autocomplete({
+                        select: function( event, ui ) {
+                            displayLecteur(ui.item.id)
+
+                        },
+                        max:10,
+                        minLength: 4,
+                        source: dataArr
+                    });
+                } );
+            }
+
+        });
+
+        function displayLecteur(id) {
+            $('#lecteur').html('<iframe src="https://open.spotify.com/embed/playlist/'+id+'" width="300" height="380" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>')
+        }
+    </script>
+{% endblock %}

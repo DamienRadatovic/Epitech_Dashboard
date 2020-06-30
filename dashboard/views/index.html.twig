@@ -1,0 +1,665 @@
+{% extends 'layout.html.twig' %}
+
+
+{% block body %}
+    <link href="/stylesheets/reseaux.css" rel="stylesheet"/>
+    <div id="etest">
+
+    </div>
+    <script>
+
+    </script>
+
+    {% if user %}
+        <div class="doted grid-stack">
+        </div>
+
+        <script type="text/javascript">
+            var grid;
+            $(document).ready(function () {
+
+                let count = 0;
+                grid = GridStack.init({
+                    alwaysShowResizeHandle: /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+                        navigator.userAgent
+                    ),
+                    resizable: {
+                        handles: 'e, se, s, sw, w'
+                    },
+                    removable: '.trash',
+                    removeTimeout: 100,
+                    acceptWidgets: '.newWidget'
+                });
+                grid.resizable('.grid-stack-item', false);
+                // addNewWidget = function () {
+                //     $("#playlist-container").show();
+                //     // grid.addWidget("", node);
+                //     return false;
+                // };
+                grid.on('added', function (e, items) {
+                    log('added ', items)
+                });
+                grid.on('removed', function (e, items) {
+                    grid.compact()
+                    log('removed ', items)
+                });
+                grid.on('change', function (e, items) {
+                    log('change ', items)
+                });
+                grid.on('dropped', function (e, items) {
+                    console.log('change ', e)
+                });
+
+                function log(type, items) {
+                    var str = '';
+                    items.forEach(function (item) {
+                        str += ' (x,y)=' + item.x + ',' + item.y;
+                    });
+                    console.log(type + items.length + ' items.' + str);
+                }
+
+
+                $('#twitter-tl').on('click', function () {
+                    tweetAccount($('#twitter-name').val())
+                });
+
+                $('#twitter-follow-button').on('click',function () {
+                    twitterAccountInfo($('#twitter-count-username').val());
+                })
+
+                $('#twitter-info-button').on('click', function () {
+                    twitterProfileInfo($('#twitter-account-info').val());
+                });
+
+                $('#search-top-button').on('click', function () {
+                    searchTop($("#select-track").val())
+                });
+
+
+
+
+                function searchTop(type) {
+                    $.ajax({
+                        url: "/spotify/api/top",
+                        dataType: "json",
+                        data: "type=" + type,
+                        type: "GET",
+                        success: function (data) {
+                            if (data.error == 401) {
+                                window.location.href = "https://accounts.spotify.com/fr/authorize?client_id=2847f09c105d4a07aec94c448957fe60&response_type=code&redirect_uri=http://127.0.0.1:3000/spotify/sessions/callback&&scope=user-read-private%20user-read-email%20playlist-read-private%20user-top-read";
+                            }
+                            var data = JSON.parse(data);
+                            $("#results").html('');
+                            let i = 1;
+                            data.items.forEach(function (item) {
+                                let p = "'";
+                                $("#results").append('<div>' + i + ' - <span onclick="displayLecteurTop(\'+p+item.id+p+\', ' + p + type + p + ')" >' + item.name + '</span></div>')
+                                i++;
+                            })
+                        }
+
+                    });
+                }
+
+                function twitterProfileInfo(account){
+                    $.ajax({
+                        url: "http://127.0.0.1:3000/twitter/api/accountInfo",
+                        dataType: "json",
+                        type: "GET",
+                        data: "user="+account,
+                        success: function(data){
+
+                            $.ajax({
+                                url: "widget/twitter-info.html",
+                                context: document.body,
+                                success: function (response) {
+                                    grid.addWidget(response, 0, 0, 3, 6, true);
+
+                                    $('#twitter-info-container').attr('id', 'twitter-info-container-' + i);
+                                    $('#profile-twitter-image').attr('id', 'profile-twitter-image-' + i);
+                                    $('#twitter-info-username').attr('id', 'twitter-info-username-' + i);
+                                    $('#twitter-info-screenname').attr('id', 'twitter-info-screenname-' + i);
+                                    $('#twitter-info-followers-count').attr('id', 'twitter-info-followers-count-' + i);
+                                    $('#twitter-follow-buttonaction').attr('id', 'twitter-follow-buttonaction-' + i);
+                                    $('#certified').attr('id', 'certified-' + i);
+
+                                    $('#profile-twitter-image-'+i).html("<img src='"+data.profile_image_url+"'>");
+                                    if(data.verified == true) {
+                                        $('#twitter-info-username-'+i).html(data.name+'<img width="20" alt="Twitter Verified Badge" src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/Twitter_Verified_Badge.svg/512px-Twitter_Verified_Badge.svg.png">');
+                                    }else{
+                                        $('#twitter-info-username-'+i).html(data.name);
+                                    }
+                                    $('#twitter-info-screenname-'+i).html("@"+data.screen_name);
+                                    $('#twitter-info-followers-count-'+i).html(data.followers_count);
+                                    $('#twitter-info-followings-count-'+i).html(data.friends_count);
+                                    $('#twitter-follow-buttonaction-'+i).html('<a href=\"https://twitter.com/'+data.screen_name+'?ref_src=twsrc%5Etfw\" class=\"twitter-follow-button\" data-show-count=\"false\">Follow @'+data.screen_name+'</a><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"/>');
+                                    if(data.verified == true) {
+                                        $('#certified-'+i).show();
+                                    }else{
+                                        $('#certified-'+i).hide();
+                                    }
+                                    // $('#tweet-container').attr('id', 'tweet-container-'+i);
+                                    // $('#tweet-container-'+i).html('<a class="twitter-timeline" href="https://twitter.com/' + account + '?ref_src=twsrc%5Etfw">Tweets by ' + account + '</a> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"/>')
+                                    i++;
+                                }
+                            });
+
+
+
+
+
+
+                        }
+
+                    });
+                }
+
+                function twitterAccountInfo(account, id = null){
+                    if(id != null && $('#twitter-account-username-'+id).length == 0) {
+                        return;
+                    }
+                    $.ajax({
+                        url: "http://127.0.0.1:3000/twitter/api/accountInfo",
+                        dataType: "json",
+                        type: "GET",
+                        data: "user="+account,
+                        success: function(data){
+                            if(id !== null) {
+                                $('#twitter-account-username-'+id).html(data.screen_name);
+                                $('#twitter-count-'+id).html(data.followers_count);
+                                setTimeout(function() {
+                                    twitterAccountInfo(account, id);
+                                }, 5000);
+                            } else {
+                                $.ajax({
+                                    url: "widget/twitter-follower.html",
+                                    context: document.body,
+                                    success: function (response) {
+                                        grid.addWidget(response, 0, 0, 3, 6, true);
+
+                                        $('#tweet-count-container').attr('id', 'tweet-count-container-' + i);
+                                        $('#twitter-account-username').attr('id', 'twitter-account-username-' + i);
+                                        $('#twitter-count').attr('id', 'twitter-count-' + i);
+
+                                        $('#twitter-account-username-' + i).html(data.screen_name);
+                                        $('#twitter-count-' + i).html(data.followers_count);
+                                        setTimeout(function () {
+                                            console.log('refreshed!');
+                                            twitterAccountInfo(account, i-1);
+                                        }, 5000);
+                                        i++;
+                                    }
+                                });
+                            }
+
+                        }
+
+                    });
+                }
+
+                function tweetAccount(account) {
+                    $.ajax({
+                        url: "widget/twitter-tweets.html",
+                        context: document.body,
+                        success: function(response) {
+                            grid.addWidget(response, 0, 0, 3, 12, true);
+                            $('#tweet-container').attr('id', 'tweet-container-'+i);
+                            $('#tweet-container-'+i).html('<a class="twitter-timeline" href="https://twitter.com/' + account + '?ref_src=twsrc%5Etfw">Tweets by ' + account + '</a> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"/>')
+                            i++;
+                        }
+                    });
+                }
+
+                // TODO: switch jquery-ui out
+                $('.newWidget').draggable({
+                    revert: 'invalid',
+                    scroll: false,
+                    appendTo: 'body',
+                    helper: 'clone'
+                });
+            })
+
+            function displayLecteurTop(id, type) {
+
+                $.ajax({
+                    url: "widget/spotify-top.html",
+                    context: document.body,
+                    success: function (response) {
+                        grid.addWidget(response, 0, 0, 3, 5, true);
+
+                        $('#lecteur-top').attr('id', 'lecteur-top-' + i);
+
+
+                        if (type == "tracks") {
+                            $('#lecteur-top-'+i).html('<iframe src="https://open.spotify.com/embed/track/' + id + '" width="300" height="380" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>')
+                        } else {
+                            $('#lecteur-top-'+i).html('<iframe src="https://open.spotify.com/embed/artist/' + id + '" width="300" height="380" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>')
+                        }
+                        i++;
+                    }
+                });
+            }
+
+        </script>
+
+
+        {#        Script playlist#}
+        <script>
+            {% if user.oauthSpotify %}
+            $.ajax({
+                url: "/spotify/api/getUserPlaylist",
+                dataType: "json",
+                type: "GET",
+                success: function (data) {
+                    if (data.error == 401) {
+                        window.location.href = "https://accounts.spotify.com/fr/authorize?client_id=2847f09c105d4a07aec94c448957fe60&response_type=code&redirect_uri=http://127.0.0.1:3000/spotify/sessions/callback&&scope=user-read-private%20user-read-email%20playlist-read-private%20user-top-read";
+                    }
+                    var dataArr = [];
+                    $(function () {
+                        data.forEach(function (element) {
+                            dataArr.push({label: element[1], value: element[1], id: element[0]});
+                        });
+                        $("#playlist").autocomplete({
+                            select: function (event, ui) {
+                                displayLecteur(ui.item.id);
+                            },
+                            max: 10,
+                            minLength: 4,
+                            source: dataArr
+                        });
+                    });
+                }
+
+            });
+
+            var i = 1;
+
+
+            function displayLecteur(id) {
+                    $.ajax({
+                        url: "widget/lecteur.html",
+                        context: document.body,
+                        success: function(response) {
+                            grid.addWidget(response, 0, 0, 3, 5, true);
+                            $('#lecteur').attr('id', 'lecteur-'+i);
+                            $('#lecteur-'+i).html('<iframe src="https://open.spotify.com/embed/playlist/' + id + '" width="300" height="380" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>')
+                            i++;
+                        }
+                    });
+            }
+            {% endif %}
+        </script>
+
+
+
+{#        Fonction compteur youtube#}
+        <script>
+            function compteurYoutube(type, time, id = null) {
+                if(id != null && $('#youtube-count-container-'+id).length == 0) {
+                    return;
+                }
+                $.ajax({
+                    url: "http://127.0.0.1:3000/youtube/api/channel",
+                    dataType: "json",
+                    type: "GET",
+                    success: function (data) {
+                        if (data.error == 401) {
+                            window.location.href = "https://accounts.google.com/o/oauth2/v2/auth?scope=https://www.googleapis.com/auth/youtube&response_type=code&state=security_token%3D138r5719ru3e1%26url%3Dhttps%3A%2F%2Foauth2.example.com%2Ftoken&redirect_uri=http%3A//127.0.0.1:3000/youtube/services/callback&client_id=482608527715-8fpkr88gaq0chr2rngoer02i8240baib.apps.googleusercontent.com";
+                        }
+                        if(id != null) {
+                            $('#channel-'+id).html(data.channelName);
+                            $('#type-count-'+id).html(type);
+                            if (type == "subs") {
+                                $("#ytb-count-"+id).html(data.subscribersCount);
+                            } else {
+                                $("#ytb-count-"+id).html(data.viewsCount);
+                            }
+                            $('#compteur-refresh-'+id).html(time);
+                            setTimeout(function () {
+                                compteurYoutube(type, time, id);
+                            }, time * 1000);
+                        } else {
+
+
+                            $.ajax({
+                                url: "widget/youtube-compteur.html",
+                                context: document.body,
+                                success: function (response) {
+                                    grid.addWidget(response, 0, 0, 3, 3, true);
+
+                                    $('#youtube-count-container').attr('id', 'youtube-count-container-' + i);
+                                    $('#channel').attr('id', 'channel-' + i);
+                                    $('#type-count').attr('id', 'type-count-' + i);
+                                    $('#ytb-count').attr('id', 'ytb-count-' + i);
+                                    $('#compteur-refresh').attr('id', 'compteur-refresh-' + i);
+
+                                    $('#channel-' + i).html(data.channelName);
+                                    $('#type-count-' + i).html(type);
+                                    if (type == "subs") {
+                                        $("#ytb-count-" + i).html(data.subscribersCount);
+                                    } else {
+                                        $("#ytb-count-" + i).html(data.viewsCount);
+                                    }
+                                    $('#compteur-refresh-' + i).html(time);
+                                    setTimeout(function () {
+                                        compteurYoutube(type, time, i - 1);
+                                    }, time * 1000);
+
+                                    i++;
+                                }
+                            });
+                        }
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        console.log(xhr.status);
+                        console.log(thrownError);
+                    }
+
+                });
+            }
+
+        </script>
+
+
+        {#        Fonction statistiques youtube#}
+        <script>
+            function statsYoutube(type, time, id = null) {
+                if(id != null && $('#youtube-stats-container-'+id).length == 0) {
+                    return;
+                }
+                $.ajax({
+                    url: "http://127.0.0.1:3000/youtube/api/lastStats",
+                    dataType: "json",
+                    type: "GET",
+                    success: function (data) {
+                        if (data.error == 401) {
+                            window.location.href = "https://accounts.google.com/o/oauth2/v2/auth?scope=https://www.googleapis.com/auth/youtube&response_type=code&state=security_token%3D138r5719ru3e1%26url%3Dhttps%3A%2F%2Foauth2.example.com%2Ftoken&redirect_uri=http%3A//127.0.0.1:3000/youtube/services/callback&client_id=482608527715-8fpkr88gaq0chr2rngoer02i8240baib.apps.googleusercontent.com";
+                        }
+                        if(id != null) {
+                            $('#stats-type-count-'+id).html(type);
+                            if (type == "views") {
+                                $('#stats-ytb-count-'+id).html(data.views.currentMonth);
+                                if (data.views.stats == 0) {
+                                    $('#diff-ytb-count-'+id).html("Soit 0% de plus que le dernier mois");
+                                } else {
+                                    if (data.views.stats >= 1000) {
+                                        $('#diff-ytb-count-'+id).html("Soit > 999,99% de plus que le derniers mois");
+                                    } else if (data.views.stats <= -1000) {
+                                        $('#diff-ytb-count-'+id).html("Soit > 999,99% de moins que le derniers mois");
+                                    } else {
+                                        $('#diff-ytb-count-'+id).html("Soit " + data.views.stats + " % par rapport au derniers mois");
+                                    }
+                                }
+                            } else if (type == "likes") {
+                                $('#stats-ytb-count-'+id).html(data.likes.currentMonth);
+                                if (data.likes.stats == 0) {
+                                    $('#diff-ytb-count-'+id).html("Soit 0% de plus que le dernier mois");
+                                } else {
+                                    if (data.likes.stats >= 1000) {
+                                        $('#diff-ytb-count-'+id).html("Soit > 999,99% de plus que le derniers mois");
+                                    } else if (data.likes.stats <= -1000) {
+                                        $('#diff-ytb-count-'+id).html("Soit > 999,99% de moins que le derniers mois");
+                                    } else {
+                                        $('#diff-ytb-count-'+id).html("Soit " + data.likes.stats + " % par rapport au derniers mois");
+                                    }
+                                }
+                            } else if (type == "dislikes") {
+                                $('#stats-ytb-count-'+id).html(data.dislikes.currentMonth);
+                                if (data.dislikes.stats == 0) {
+                                    $('#diff-ytb-count-'+id).html("Soit 0% de plus que le dernier mois");
+                                } else {
+                                    if (data.dislikes.stats >= 1000) {
+                                        $('#diff-ytb-count-'+id).html("Soit > 999,99% de plus que le derniers mois");
+                                    } else if (data.dislikes.stats <= -1000) {
+                                        $('#diff-ytb-count-'+id).html("Soit > 999,99% de moins que le derniers mois");
+                                    } else {
+                                        $('#diff-ytb-count-'+id).html("Soit " + data.dislikes.stats + " % par rapport au derniers mois");
+                                    }
+                                }
+                            } else {
+                                $('#stats-ytb-count-'+id).html(data.subs.currentMonth);
+                                if (data.subs.stats == 0) {
+                                    $('#diff-ytb-count-'+id).html("Soit 0% de plus que le dernier mois");
+                                } else {
+                                    if (data.subs.stats >= 1000) {
+                                        $('#diff-ytb-count-'+id).html("Soit > 999,99% de plus que le derniers mois");
+                                    } else if (data.subs.stats <= -1000) {
+                                        $('#diff-ytb-count-'+id).html("Soit > 999,99% de moins que le derniers mois");
+                                    } else {
+                                        $('#diff-ytb-count-'+id).html("Soit " + data.subs.stats + " % par rapport au derniers mois");
+                                    }
+                                }
+                            }
+
+                            $('#ytb-stats-compteur-refresh-'+id).html(time);
+
+                            let refresh = id;
+                            setTimeout(function () {
+                                statsYoutube(type, time, refresh);
+                            }, time * 1000);
+                        }
+                        else {
+                            $.ajax({
+                                url: "widget/youtube-stats.html",
+                                context: document.body,
+                                success: function (response) {
+                                    grid.addWidget(response, 0, 0, 3, 3, true);
+
+                                    $('#youtube-stats-container').attr('id', 'youtube-stats-container-' + i);
+                                    $('#stats-type-count').attr('id', 'stats-type-count-' + i);
+                                    $('#stats-ytb-count').attr('id', 'stats-ytb-count-' + i);
+                                    $('#diff-ytb-count').attr('id', 'diff-ytb-count-' + i);
+                                    $('#ytb-stats-compteur-refresh').attr('id', 'ytb-stats-compteur-refresh-' + i);
+                                    $('#stats-youtube-results').attr('id', 'stats-youtube-results-' + i);
+
+                                    if(data.empty_channel == 1) {
+                                        $('#stats-youtube-results-'+i).html("Pas de statistiques pour cette chaîne");
+                                        i++;
+                                        return;
+                                    }
+
+                                    $('#stats-type-count-' + i).html(type);
+                                    if (type == "views") {
+                                        $('#stats-ytb-count-' + i).html(data.views.currentMonth);
+                                        if (data.views.stats == 0) {
+                                            $('#diff-ytb-count-' + i).html("Soit 0% de plus que le dernier mois");
+                                        } else {
+                                            if (data.views.stats >= 1000) {
+                                                $('#diff-ytb-count-' + i).html("Soit > 999,99% de plus que le derniers mois");
+                                            } else if (data.views.stats <= -1000) {
+                                                $('#diff-ytb-count-' + i).html("Soit > 999,99% de moins que le derniers mois");
+                                            } else {
+                                                $('#diff-ytb-count-' + i).html("Soit " + data.views.stats + " % par rapport au derniers mois");
+                                            }
+                                        }
+                                    } else if (type == "likes") {
+                                        $('#stats-ytb-count-' + i).html(data.likes.currentMonth);
+                                        if (data.likes.stats == 0) {
+                                            $('#diff-ytb-count-' + i).html("Soit 0% de plus que le dernier mois");
+                                        } else {
+                                            if (data.likes.stats >= 1000) {
+                                                $('#diff-ytb-count-' + i).html("Soit > 999,99% de plus que le derniers mois");
+                                            } else if (data.likes.stats <= -1000) {
+                                                $('#diff-ytb-count-' + i).html("Soit > 999,99% de moins que le derniers mois");
+                                            } else {
+                                                $('#diff-ytb-count-' + i).html("Soit " + data.likes.stats + " % par rapport au derniers mois");
+                                            }
+                                        }
+                                    } else if (type == "dislikes") {
+                                        $('#stats-ytb-count-' + i).html(data.dislikes.currentMonth);
+                                        if (data.dislikes.stats == 0) {
+                                            $('#diff-ytb-count-' + i).html("Soit 0% de plus que le dernier mois");
+                                        } else {
+                                            if (data.dislikes.stats >= 1000) {
+                                                $('#diff-ytb-count-' + i).html("Soit > 999,99% de plus que le derniers mois");
+                                            } else if (data.dislikes.stats <= -1000) {
+                                                $('#diff-ytb-count-' + i).html("Soit > 999,99% de moins que le derniers mois");
+                                            } else {
+                                                $('#diff-ytb-count-' + i).html("Soit " + data.dislikes.stats + " % par rapport au derniers mois");
+                                            }
+                                        }
+                                    } else {
+                                        $('#stats-ytb-count-' + i).html(data.subs.currentMonth);
+                                        if (data.subs.stats == 0) {
+                                            $('#diff-ytb-count-' + i).html("Soit 0% de plus que le dernier mois");
+                                        } else {
+                                            if (data.subs.stats >= 1000) {
+                                                $('#diff-ytb-count-' + i).html("Soit > 999,99% de plus que le derniers mois");
+                                            } else if (data.subs.stats <= -1000) {
+                                                $('#diff-ytb-count-' + i).html("Soit > 999,99% de moins que le derniers mois");
+                                            } else {
+                                                $('#diff-ytb-count-' + i).html("Soit " + data.subs.stats + " % par rapport au derniers mois");
+                                            }
+                                        }
+                                    }
+
+                                    $('#ytb-stats-compteur-refresh-' + i).html(time);
+
+                                    let refresh = i;
+                                    setTimeout(function () {
+                                        statsYoutube(type, time, refresh);
+                                    }, time * 1000);
+                                    i++;
+                                }
+                            });
+                        }
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        console.log(xhr.status);
+                        console.log(thrownError);
+                    }
+
+                });
+            }
+        </script>
+
+
+{#        Fonction prix d'une bibliothèque#}
+        <script>
+            function steamPrice(user) {
+                $.ajax({
+                    url: "widget/steam-price.html",
+                    context: document.body,
+                    success: function(response) {
+                        grid.addWidget(response, 0, 0, 3, 4, true);
+                        $.ajax({
+                            url: "http://127.0.0.1:3000/steam/api/myPrice",
+                            dataType: "json",
+                            type: "GET",
+                            data: "user=" + user,
+                            success: function (data) {
+                                if (!data.error) {
+                                    $('#price-steam').attr('id', 'price-steam-'+i);
+                                    $('#total-steam-game-count').attr('id', 'total-steam-game-count-'+i);
+                                    $('#steam-loading').attr('id', 'steam-loading-'+i);
+                                    $('#steam-price-container').attr('id', 'steam-price-container-'+i);
+                                    $('#steam-price-results').attr('id', 'steam-price-results-'+i);
+                                    $('#username-steam').attr('id', 'username-steam-'+i);
+
+                                    $('#username-steam-'+i).html(data.data.user);
+                                    $('#price-steam-'+i).html(data.data.price+' €');
+                                    $('#total-steam-game-count-'+i).html(data.data.count);
+                                    $('#steam-loading-'+i).hide();
+                                    $('#steam-price-results-'+i).show();
+                                    i++;
+
+                                }
+                            }
+                        });
+                    }
+                });
+            }
+        </script>
+
+        {#        Fonction steam player#}
+        <script>
+            $(document).ready(function () {
+                $.ajax({
+                    url: "http://127.0.0.1:3000/steam/getAllGames",
+                    dataType: "json",
+                    type: "GET",
+                    success: function(data){
+                        var dataArr = [];
+                        $( function() {
+                            data.forEach(function (element) {
+                                dataArr.push({label: element.appName, value: element.appName, id: element.appId});
+                            })
+                            $( "#game" ).autocomplete({
+                                select: function( event, ui ) {
+                                    getPlayerCount(ui.item.label, ui.item.id)
+                                },
+                                max:10,
+                                minLength: 4,
+                                source: dataArr
+                            });
+                        } );
+                    }
+                });
+            });
+
+            function getPlayerCount(appName, appId) {
+                $.ajax({
+                    url: "http://127.0.0.1:3000/steam/getPlayerCount",
+                    data: "appid="+appId,
+                    dataType: "json",
+                    type: "GET",
+                    success: function(data){
+                        $.ajax({
+                            url: "widget/steam-count.html",
+                            context: document.body,
+                            success: function(response) {
+                                grid.addWidget(response, 0, 0, 3, 3, true);
+                                $('#gameName').attr('id', 'gameName-'+i);
+                                $('#count').attr('id', 'count-'+i);
+
+                                $('#gameName-'+i).html(appName);
+                                $('#count-'+i).html(data.player_count);
+                                i++;
+                            }
+                        });
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        console.log(xhr.status);
+                        console.log(thrownError);
+                    }
+
+                });
+            }
+        </script>
+    {% else %}
+        {% block Connexion %}
+            <link href="/stylesheets/connexion.css" rel="stylesheet"/>
+            <form id="form" class="box" role="form" action="/login" method="post">
+                <div class="input-container">
+                    <p>Identifiez-vous</p>
+                    <div class="input-1">
+                        <svg width="25" height="25" viewBox="0 0 24 24" class="icon-form">
+                            <path class="icon-path"
+                                  d="M12 14.016q2.531 0 5.273 1.102t2.742 2.883v2.016h-16.031v-2.016q0-1.781 2.742-2.883t5.273-1.102zM12 12q-1.641 0-2.813-1.172t-1.172-2.813 1.172-2.836 2.813-1.195 2.813 1.195 1.172 2.836-1.172 2.813-2.813 1.172z"
+                            ></path>
+                        </svg>
+                        <input class="input" type="text" name="username" id="inputEmail" placeholder="Votre nom"
+                               required>
+                    </div>
+                    <div class="line"></div>
+                    <div class="input-2">
+                        <svg width="25" height="25" viewBox="0 0 32 32" class="icon-form">
+                            <path class="icon-path"
+                                  d="M15 21.915v0c-0.583-0.206-1-0.762-1-1.415 0-0.828 0.672-1.5 1.5-1.5s1.5 0.672 1.5 1.5c0 0.653-0.417 1.209-1 1.415v2.594c0 0.263-0.224 0.491-0.5 0.491-0.268 0-0.5-0.22-0.5-0.491v-2.594zM8 14v0 0c-1.658 0.005-3 1.34-3 3.009v9.981c0 1.662 1.346 3.009 3.009 3.009h14.982c1.662 0 3.009-1.337 3.009-3.009v-9.981c0-1.659-1.341-3.005-3-3.009v-3.501c0-4.142-3.366-7.499-7.5-7.499-4.142 0-7.5 3.357-7.5 7.499v3.501zM11 14v-3.499c0-2.492 2.015-4.501 4.5-4.501 2.48 0 4.5 2.015 4.5 4.501v3.499h-9z"
+                            ></path>
+                        </svg>
+                        <input class="input" type="password" name="password" id="inputPassword"
+                               placeholder="Votre mot de passe">
+                    </div>
+                    <div class="button-container">
+                        <a class="button-connexion" onclick="document.getElementById('form').submit()">Se connecter</a>
+                        <a class="button-connexion" href="/register">S'inscrire</a>
+                    </div>
+                </div>
+            </form>
+
+            <script src="/JS/connexion.js"></script>
+        {% endblock %}
+    {% endif %}
+    {#    <p>Coucou</p>#}
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends 'layout.html.twig' %}
+
+{% block body %}
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <select id="select-track">
+        <option value="artists">Artiste</option>
+        <option value="tracks">Track</option>
+    </select>
+    <div id="results">
+
+    </div>
+    <div id="lecteur">
+
+    </div>
+    <script>
+        function displayLecteur(id, type) {
+            if(type == "tracks") {
+                $('#lecteur').html('<iframe src="https://open.spotify.com/embed/track/'+id+'" width="300" height="380" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>')
+            }else {
+                $('#lecteur').html('<iframe src="https://open.spotify.com/embed/artist/'+id+'" width="300" height="380" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>')
+            }
+        }
+
+        function searchTop(type){
+            $.ajax({
+                url: "/spotify/api/top",
+                dataType: "json",
+                data: "type="+type,
+                type: "GET",
+                success: function(data){
+                    if(data.error == 401) {
+                        window.location.href = "https://accounts.spotify.com/fr/authorize?client_id=2847f09c105d4a07aec94c448957fe60&response_type=code&redirect_uri=http://127.0.0.1:3000/spotify/sessions/callback&&scope=user-read-private%20user-read-email%20playlist-read-private%20user-top-read";
+                    }
+                    var data = JSON.parse(data);
+                    $("#results").html('');
+                    let i = 1;
+                    data.items.forEach(function (item) {
+                        let p = "'";
+                        $("#results").append('<div>'+i+' - <span onclick="displayLecteur(\'+p+item.id+p+\', '+p+type+p+')" >'+item.name+'</span></div>')
+                        i++;
+                    })
+                }
+
+            });
+        }
+        $('#select-track').on('change', function () {
+            searchTop(this.value);
+        });
+
+        $( document ).ready(function() {
+            searchTop("artists");
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,63 @@
+{% extends 'layout.html.twig' %}
+
+{% block body %}
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+    <script>
+        $.ajax({
+            url: "http://localhost:3000/steam/getAllGames",
+            dataType: "json",
+            type: "GET",
+            success: function(data){
+                var dataArr = [];
+                $( function() {
+                    data.forEach(function (element) {
+                        dataArr.push({label: element.appName, value: element.appName, id: element.appId});
+                    })
+                    // console.log(dataArr)
+                    $( "#game" ).autocomplete({
+                        // source: availableTags,
+                        select: function( event, ui ) {
+                            // console.log(ui.item)
+                            getPlayerCount(ui.item.label, ui.item.id)
+
+                        },
+                        max:10,
+                        minLength: 4,
+
+                        source: dataArr
+
+                    });
+                } );
+            }
+
+        });
+
+        function getPlayerCount(appName, appId) {
+            console.log("getting player count ... for appid " + appId);
+            $.ajax({
+                url: "http://localhost:3000/steam/getPlayerCount",
+                data: "appid="+appId,
+                dataType: "json",
+                type: "GET",
+                success: function(data){
+                    console.log(data);
+                    $('#gameName').html(appName);
+                    $('#count').html(data.player_count);
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert(xhr.status);
+                    alert(thrownError);
+                }
+
+            });
+        }
+    </script>
+    <input id="game">
+    <div>
+        Jeu: <div id="gameName"></div>
+        Nombre de joueurs actuel <div id="count"></div>
+    </div>
+{% endblock %}

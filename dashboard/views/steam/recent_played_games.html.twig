@@ -1,0 +1,17 @@
+{% extends 'layout.html.twig' %}
+
+{% block body %}
+    {% if games.total_count is same as(0) %}
+        <p>Pas de jeux joués récemment</p>
+    {% else %}
+        {% for game in games.games %}
+            <div>
+                <p>{{ game.name }}</p>
+                <p>{{ (game.playtime_2weeks / 60) | number_format(2) }} heures jouées les 2 dernières semaines</p>
+                <p>{{ (game.playtime_forever / 60) | number_format(2) }} heures jouées depuis toujours</p>
+                <img style="max-height: 100px"
+                     src="http://media.steampowered.com/steamcommunity/public/images/apps/{{ game.appid }}/{{ game.img_logo_url }}.jpg"
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,76 @@
+{% extends 'layout.html.twig' %}
+
+{% block body %}
+    <h1>Statistiques par rapport au mois dernier</h1>
+    {% if empty_channel is same as(1) %}
+        <div>
+            Aucune donnée disponible pour votre chaîne Youtube
+        </div>
+    {% else %}
+        <div>
+            <h2>Abonnés</h2>
+            <p>{{ subs.currentMonth }}</p>
+            {% if subs.stats == 0 %}
+                <p>Soit 0% de plus que le dernier mois</p>
+            {% else %}
+                {% if subs.stats >= 1000 %}
+                    <p>Soit > 999,99% de plus que le derniers mois</p>
+                {% elseif subs.stats <= -1000 %}
+                    <p>Soit > 999,99% de plus que le derniers mois</p>
+                {% else %}
+                    <p>Soit {{ subs.stats }} % {% if subs.stats > 0 %} de plus {% else %} de moins {% endif %} que le
+                        derniers mois</p>
+                {% endif %}
+            {% endif %}
+        </div>
+        <div>
+            <h2>Vues</h2>
+            <p>{{ views.currentMonth }}</p>
+            {% if views.stats == 0 %}
+                <p>Soit 0% de plus que le dernier mois</p>
+            {% else %}
+                {% if views.stats >= 1000 %}
+                    <p>Soit > 999,99% de plus que le derniers mois</p>
+                {% elseif views.stats <= -1000 %}
+                    <p>Soit > 999,99% de plus que le derniers mois</p>
+                {% else %}
+                    <p>Soit {{ views.stats }} % {% if views.stats > 0 %} de plus {% else %} de moins {% endif %} que le
+                        derniers mois</p>
+                {% endif %}
+            {% endif %}
+        </div>
+        <div>
+            <h2>Likes</h2>
+            <p>{{ likes.currentMonth }}</p>
+            {% if likes.stats == 0 %}
+                <p>Soit 0% de plus que le dernier mois</p>
+            {% else %}
+                {% if likes.stats >= 1000 %}
+                    <p>Soit > 999,99% de plus que le derniers mois</p>
+                {% elseif likes.stats <= -1000 %}
+                    <p>Soit > 999,99% de plus que le derniers mois</p>
+                {% else %}
+                    <p>Soit {{ likes.stats }} % {% if likes.stats > 0 %} de plus {% else %} de moins {% endif %} que le
+                        derniers mois</p>
+                {% endif %}
+            {% endif %}
+        </div>
+        <div>
+            <h2>Dislikes</h2>
+            <p>{{ dislikes.currentMonth }}</p>
+            {% if dislikes.stats == 0 %}
+                <p>Soit 0% de plus que le dernier mois</p>
+            {% else %}
+                {% if dislikes.stats >= 1000 %}
+                    <p>Soit > 999,99% de plus que le derniers mois</p>
+                {% elseif dislikes.stats <= -1000 %}
+                    <p>Soit > 999,99% de plus que le derniers mois</p>
+                {% else %}
+                    <p>Soit {{ dislikes.stats }} % {% if dislikes.stats > 0 %} de plus {% else %} de moins {% endif %}
+                        que le
+                        derniers mois</p>
+                {% endif %}
+            {% endif %}
+        </div>
+    {% endif %}
+{% endblock %}

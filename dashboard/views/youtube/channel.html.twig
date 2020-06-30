@@ -1,0 +1,16 @@
+{% extends 'layout.html.twig' %}
+
+{% block body %}
+    <div>
+        Nom de la chaîne : {{ channelName }}
+    </div>
+    <div>
+        Nombres de vues : {{ viewsCount }}
+    </div>
+    <div>
+        Nombres d'abonnés : {{ subscribersCount }}
+    </div>
+    <div>
+        Date de création de la chaîne : {{ createdAt | date }}
+    </div>
+{% endblock %}

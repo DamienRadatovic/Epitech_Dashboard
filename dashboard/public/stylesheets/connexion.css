@@ -1,0 +1,144 @@
+html {
+    overflow: hidden;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+}
+
+.box {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 50%;
+    margin: auto;
+}
+
+.input-container {
+    display: flex;
+    flex-direction: column;
+    width: 50%;
+}
+
+.input-container p {
+    color: #b8b4cc;
+    font-weight: 100 !important;
+    font-size: 21px;
+    margin-bottom: 30px;
+}
+
+.input-1 {
+    display: flex;
+    flex-direction: row;
+    height: 50px;
+    border-top: 1.5px solid rgba(204, 204, 204, 0.4);
+}
+
+.input-2 {
+    display: flex;
+    flex-direction: row;
+    height: 50px;
+    border-bottom: 1.5px solid rgba(204, 204, 204, 0.4);
+}
+
+.line {
+    height: 1.5px;
+    background-color: rgba(204, 204, 204, 0.4);
+    width: 100%;
+}
+
+.input-1 input {
+    color: #b8b4cc;
+    font-size: 15px;
+    background-color: transparent;
+    border: none;
+    outline: none;
+}
+
+.input-1 input:focus {
+    font-size: 15px;
+    color: white;
+    background-color: transparent;
+    border: none;
+    outline: none;
+}
+
+.input-2 input {
+    color: #b8b4cc;
+    font-size: 15px;
+    background-color: transparent;
+    border: none;
+    outline: none;
+}
+
+.input-2 input:focus {
+    font-size: 15px;
+    color: white;
+    background-color: transparent;
+    border: none;
+    outline: none;
+}
+
+.icon-path {
+    fill: #b8b4cc;
+}
+
+.icon-path-active {
+    fill: white;
+}
+
+.icon-form {
+    display: flex;
+    flex-direction: row;
+    align-self: center;
+    margin-right: 17px;
+    margin-left: 17px;
+}
+
+.button-connexion {
+    margin-top: 35px;
+    border-radius: 25px;
+    border-color: transparent;
+    outline: none;
+    color: white;
+    font-size: 14px;
+    font-weight: 200;
+    display: flex;
+    width: 130px;
+    justify-content: center;
+    padding: 10px;
+    background-color: #1b9dec;
+    text-decoration: none;
+}
+
+.button-sign-up {
+    box-sizing: content-box;
+    border-radius: 25px;
+    border-color: transparent;
+    outline: none;
+    color: white;
+    font-size: 14px;
+    font-weight: 200;
+    display: flex;
+    width: 130px;
+    margin-top: 35px;
+    justify-content: center;
+    padding: 10px;
+    background-color: #1b9dec;
+    text-decoration: none;
+}
+
+.button-connexion:hover {
+    font-weight: 400;
+    cursor: pointer;
+    background-color: #1b77c1;
+}
+
+.button-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}

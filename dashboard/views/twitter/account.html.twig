@@ -1,0 +1,6 @@
+{% extends 'layout.html.twig' %}
+
+{% block body %}
+    LE COMPTE: {{ username }}
+    <a class="twitter-timeline" href="https://twitter.com/{{ username }}?ref_src=twsrc%5Etfw">Tweets by {{username}}</a> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+{% endblock %}

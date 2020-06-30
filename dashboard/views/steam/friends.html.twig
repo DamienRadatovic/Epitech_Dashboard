@@ -1,0 +1,10 @@
+{% extends 'layout.html.twig' %}
+
+{% block body %}
+    {% for friend in friends %}
+        <div>
+            <img src="{{ friend[2] }}">
+            <p>{{ friend[0] }} ami depuis {{ friend[1] }}</p>
+        </div>
+    {% endfor %}
+{% endblock %}
