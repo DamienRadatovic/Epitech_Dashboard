@@ -12,8 +12,8 @@ var authController = require('./AuthControllers');
 
 var twitterController = {};
 
-var _twitterConsumerKey = "rfivln94JNkVoPVKoBn79crdc";
-var _twitterConsumerSecret = "ppY9iUnH5uEL5QABgd1hEwZMt8cPUHrcCoqqhIwNUR2zl2xr0w";
+var _twitterConsumerKey = "YOUR-KEY-PLZ";
+var _twitterConsumerSecret = "YOUR-KEY-PLZ";
 
 function consumer() {
     return new oauth.OAuth(

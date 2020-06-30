@@ -44,12 +44,12 @@ steamController.callback = function(req, res) {
 //Return les ID ( dans la console ) des amis Steam.
 steamController.getFriendList = async function(req, res) {
     authController.checkIfLogged(req, res);
-    await request.get('http://api.steampowered.com/ISteamUser/GetFriendList/v0001/?key=5BED62BD82D03D000189824F0AE1E79E&steamid='+req.user.oauthSteam+'&relationship=friend', await async function (error, response, body) {
+    await request.get('http://api.steampowered.com/ISteamUser/GetFriendList/v0001/?key=YOUR-KEY-PLZ&steamid='+req.user.oauthSteam+'&relationship=friend', await async function (error, response, body) {
         var friends = [];
         const forLoop = async _ => {
             for (let element in JSON.parse(body).friendslist.friends) {
                 let since = timeConverter(JSON.parse(body).friendslist.friends[element].friend_since);
-                await request.get('http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=5BED62BD82D03D000189824F0AE1E79E&steamids='+JSON.parse(body).friendslist.friends[element].steamid, function (error, response, body) {
+                await request.get('http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=YOUR-KEY-PLZ&steamids='+JSON.parse(body).friendslist.friends[element].steamid, function (error, response, body) {
                     friends.push([JSON.parse(body).response.players[0].personaname, since,JSON.parse(body).response.players[0].avatar])
                 });
             }
@@ -135,7 +135,7 @@ steamController.getAllGamesFromSteam = async function(req, res) {
     })
 
     var apps = [];
-    await request.get('http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key=5BED62BD82D03D000189824F0AE1E79E&steamid='+req.user.oauthSteam,await async function (error, response, body) {
+    await request.get('http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key=YOUR-KEY-PLZ&steamid='+req.user.oauthSteam,await async function (error, response, body) {
         var i = 1;
         var price = 0;
 
@@ -176,7 +176,7 @@ steamController.getLibraryPrice = async function(req, res) {
     var price = 0;
     var gameCount = 0;
 
-    await request.get('http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key=5BED62BD82D03D000189824F0AE1E79E&steamid='+req.user.oauthSteam,await async function (error, response, body) {
+    await request.get('http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key=YOUR-KEY-PLZ&steamid='+req.user.oauthSteam,await async function (error, response, body) {
         const forLoop = async _ => {
             var games = JSON.parse(body).response.games;
             gameCount = JSON.parse(body).response.game_count;
@@ -200,11 +200,11 @@ steamController.apiGetLibraryPrice = async function(req, res) {
     var price = 0;
     var gameCount = 0;
 
-    await request.get("http://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/?key=5BED62BD82D03D000189824F0AE1E79E&vanityurl="+req.query.user, await async function (error, response, body) {
+    await request.get("http://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/?key=YOUR-KEY-PLZ&vanityurl="+req.query.user, await async function (error, response, body) {
         if(JSON.parse(body).response.success != 1) {
             return res.json({error: 404});
         }else {
-            await request.get('http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key=5BED62BD82D03D000189824F0AE1E79E&steamid='+JSON.parse(body).response.steamid,await async function (error, response, body) {
+            await request.get('http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key=YOUR-KEY-PLZ&steamid='+JSON.parse(body).response.steamid,await async function (error, response, body) {
                 const forLoop = async _ => {
                     var games = JSON.parse(body).response.games;
                     gameCount = JSON.parse(body).response.game_count;
@@ -269,7 +269,7 @@ steamController.putSteamGamesInDB = function(req, res) {
 // Return les X derniers jeux joués avec le nom du jeu ,  le logo du jeu et le nombre de minutes jouées.
 steamController.getRecentPlayedGames = function(req, res) {
     authController.checkIfLogged(req, res);
-    request.get('http://api.steampowered.com/IPlayerService/GetRecentlyPlayedGames/v0001/?key=5BED62BD82D03D000189824F0AE1E79E&steamid='+req.user.oauthSteam, function (error, response, body) {
+    request.get('http://api.steampowered.com/IPlayerService/GetRecentlyPlayedGames/v0001/?key=YOUR-KEY-PLZ&steamid='+req.user.oauthSteam, function (error, response, body) {
         return twing.render('steam/recent_played_games.html.twig', {
             'games': JSON.parse(body).response
         }).then((output) => {
@@ -287,7 +287,7 @@ steamController.getPlayerCount = function(req, res) {
 //TODO A SUPPRIMER
 steamController.getUserName = function(req, res) {
     authController.checkIfLogged(req, res);
-    request.get('http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=5BED62BD82D03D000189824F0AE1E79E&steamids='+req.user.oauthSteam, function (error, response, body) {
+    request.get('http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=YOUR-KEY-PLZ&steamids='+req.user.oauthSteam, function (error, response, body) {
         return null;
     })
 };

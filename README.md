@@ -13,6 +13,10 @@ docker-compose up --build
 
 Le projet est alors accessible dans votre navigateur sur 127.0.0.1:3000
 
+## Utilisation
+
+Pour que le dashboard fonctionne vous devez mettre vos propres clef à tous les endroits où il est écrit 'YOUR-KEY-PLZ'
+
 ## Description
 
 Une fois sur la page du Dashboard, la première étape consiste à se connecter. 

@@ -7,12 +7,12 @@ var authController = require('./AuthControllers');
 
 var youtubeController = {};
 
-var _youtubeConsumerKey = "482608527715-8fpkr88gaq0chr2rngoer02i8240baib.apps.googleusercontent.com";
-var _youtubeConsumerSecret = "7ywN-C1VKkvURTRzWXKaGw2M";
-var _youtubeApiKey = "AIzaSyA4xXnPqBQaJfzzYpMn3RBTFBYZT206Qas";
+var _youtubeConsumerKey = "YOUR-KEY-PLZ";
+var _youtubeConsumerSecret = "YOUR-KEY-PLZ";
+var _youtubeApiKey = "YOUR-KEY-PLZ";
 
 youtubeController.connect = function(req,res) {
-    res.redirect("https://accounts.google.com/o/oauth2/v2/auth?scope=https://www.googleapis.com/auth/youtube&response_type=code&state=security_token%3D138r5719ru3e1%26url%3Dhttps%3A%2F%2Foauth2.example.com%2Ftoken&redirect_uri=http%3A//127.0.0.1:3000/youtube/services/callback&client_id=482608527715-8fpkr88gaq0chr2rngoer02i8240baib.apps.googleusercontent.com");
+    res.redirect("https://accounts.google.com/o/oauth2/v2/auth?scope=https://www.googleapis.com/auth/youtube&response_type=code&state=security_token%YOUR-KEY-PLZoauth2.example.com%2Ftoken&redirect_uri=http%3A//127.0.0.1:3000/youtube/services/callback&client_id=YOUR-KEY-PLZ");
 };
 
 youtubeController.callback = function(req,res) {
@@ -21,7 +21,7 @@ youtubeController.callback = function(req,res) {
             'Content-Type': 'application/x-www-form-urlencoded',
         },
         url:     'https://oauth2.googleapis.com/token',
-        body:    "code="+req.query.code+"&client_id=482608527715-8fpkr88gaq0chr2rngoer02i8240baib.apps.googleusercontent.com&client_secret=7ywN-C1VKkvURTRzWXKaGw2M&redirect_uri=http://127.0.0.1:3000/youtube/services/callback&grant_type=authorization_code"
+        body:    "code="+req.query.code+"&client_id=YOUR-KEY-PLZ&client_secret=YOUR-KEY-PLZ&redirect_uri=http://127.0.0.1:3000/youtube/services/callback&grant_type=authorization_code"
     }, function(error, response, body){
         User.find({username: req.user.username}).updateOne({oauthYoutube: JSON.parse(response.body).access_token}, function(err, todo){
             if (err) return res.status(500).send(err);
@@ -39,7 +39,7 @@ youtubeController.getChannel = function(req,res) {
         url:     "https://www.googleapis.com/youtube/v3/channels?part=snippet%2CcontentDetails%2Cstatistics&mine=true&key="+_youtubeApiKey,
     }, function(error, response, body){
         if(JSON.parse(response.body).error) {
-            return res.redirect('https://accounts.google.com/o/oauth2/v2/auth?scope=https://www.googleapis.com/auth/youtube&response_type=code&state=security_token%3D138r5719ru3e1%26url%3Dhttps%3A%2F%2Foauth2.example.com%2Ftoken&redirect_uri=http%3A//127.0.0.1:3000/youtube/services/callback&client_id=482608527715-8fpkr88gaq0chr2rngoer02i8240baib.apps.googleusercontent.com');
+            return res.redirect('https://accounts.google.com/o/oauth2/v2/auth?scope=https://www.googleapis.com/auth/youtube&response_type=code&state=security_token%YOUR-KEY-PLZoauth2.example.com%2Ftoken&redirect_uri=http%3A//127.0.0.1:3000/youtube/services/callback&client_id=YOUR-KEY-PLZ');
         }
         if(JSON.parse(response.body).pageInfo.totalResults == 0) {
             return twing.render('youtube/channel.html.twig', {
@@ -115,7 +115,7 @@ youtubeController.getLastStats = function(req, res) {
     }, function(error, response, body){
         var data = JSON.parse(response.body).rows;
         if(JSON.parse(response.body).error) {
-            return res.redirect('https://accounts.google.com/o/oauth2/v2/auth?scope=https://www.googleapis.com/auth/youtube&response_type=code&state=security_token%3D138r5719ru3e1%26url%3Dhttps%3A%2F%2Foauth2.example.com%2Ftoken&redirect_uri=http%3A//127.0.0.1:3000/youtube/services/callback&client_id=482608527715-8fpkr88gaq0chr2rngoer02i8240baib.apps.googleusercontent.com');
+            return res.redirect('https://accounts.google.com/o/oauth2/v2/auth?scope=https://www.googleapis.com/auth/youtube&response_type=code&state=security_token%YOUR-KEY-PLZtoken&redirect_uri=http%3A//127.0.0.1:3000/youtube/services/callback&client_id=YOUR-KEY-PLZ');
         }
         if(data.length == 0) {
             return twing.render('youtube/last_stats.html.twig', {
